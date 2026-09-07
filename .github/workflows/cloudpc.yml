@@ -11,8 +11,7 @@ jobs:
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
 
-      - name: Download and Start Pinggy TCP Tunnel
+      - name: Download LocalXpose or Use Pinggy Web URL
         run: |
-          Write-Host "Setting up secure TCP tunnel for RDP..."
-          # Pinggy ব্যবহার করে সরাসরি TCP পোর্ট ফরোয়ার্ড করা যা RDP-এর জন্য চমৎকার কাজ করে
-          ssh -o StrictHostKeyChecking=no -R 0:localhost:3389 free.pinggy.io
+          # Pinggy-তে টেনেক্স বা নন-ইন্টারেক্টিভভাবে কানেক্ট করার জন্য -T ফ্ল্যাগ ব্যবহার করা
+          ssh -o StrictHostKeyChecking=no -T -R 0:localhost:3389 free.pinggy.io
