@@ -16,15 +16,14 @@ jobs:
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
 
-      - name: Start Ngrok TCP Tunnel without Token
+      - name: Configure and Start Ngrok TCP Tunnel
         run: |
-          # এনগ্রক অ্যাকাউন্টের টোকেন ছাড়াই সরাসরি গেস্ট মোডে টিসিপি পোর্ট ৩৩৮৯ ফরোয়ার্ড করা
+          .\ngrok.exe config add-authtoken 3J0p8EQgnfYX7DcFCsnWmvfYnzX_26L92byHrHecnCdTuQQgu
           Start-Process -FilePath ".\ngrok.exe" -ArgumentList "tcp 3389"
-          Start-Sleep -Seconds 5
+          Start-Sleep -Seconds 7
 
       - name: Show Connection Details
         run: |
-          # লোকাল হোস্ট থেকে এনগ্রকের রিমোট টিসিপি অ্যাড্রেস ফেচ করে প্রিন্ট করা
           Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" | Select-Object -ExpandProperty tunnels | Select-Object public_url
           
       - name: Keep Runner Alive
