@@ -1,0 +1,32 @@
+name: Free Windows RDP
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Download Ngrok Executable
+        run: |
+          Invoke-WebRequest -Uri "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+          Expand-Archive -Path "ngrok.zip" -DestinationPath "."
+
+      - name: Enable RDP Protocol
+        run: |
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
+
+      - name: Start Ngrok TCP Tunnel without Token
+        run: |
+          # এনগ্রক অ্যাকাউন্টের টোকেন ছাড়াই সরাসরি গেস্ট মোডে টিসিপি পোর্ট ৩৩৮৯ ফরোয়ার্ড করা
+          Start-Process -FilePath ".\ngrok.exe" -ArgumentList "tcp 3389"
+          Start-Sleep -Seconds 5
+
+      - name: Show Connection Details
+        run: |
+          # লোকাল হোস্ট থেকে এনগ্রকের রিমোট টিসিপি অ্যাড্রেস ফেচ করে প্রিন্ট করা
+          Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" | Select-Object -ExpandProperty tunnels | Select-Object public_url
+          
+      - name: Keep Runner Alive
+        run: |
+          Start-Sleep -Seconds 21600
